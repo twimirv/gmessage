@@ -6,7 +6,7 @@ This is a script to send Google Chat messages using incoming webhooks.
 
 ### Automated install:
 1. Clone repository
-2. In repository root, run ```bin/gmessage-install```
+2. In repository root, run ```bin/gmessage-install``` (note: may require sudo)
 3. Done.
 
 ### Manual install:
