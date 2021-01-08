@@ -1,0 +1,98 @@
+#!/bin/bash
+echo $1
+room=$1
+msg=$2
+start=0
+clear
+FILE="/usr/local/bin/gmessageList.csv"
+echo "Parameter count: $#, 1: $1, 2: $2"
+
+# Start screen if no parameters given
+if [[ $# -eq 0 ]] ; then
+    echo "gMessage"
+    echo "v.0.0.1"
+    echo ""
+    echo "1. Set up new webhook"
+    echo "2. View chatrooms"
+    echo "3. Help"
+    echo "4. Exit"
+    read -p "[?]" start
+# If parameters are given, run this
+else
+    if [[ $# -eq 1 ]]; then
+        defUrl=""
+        while IFS=, read -r rnick rurl rdef
+        do
+            if [[ "$rdef" == 'y' ]] ; then
+                defUrl=$rurl
+            fi
+        done < $FILE
+        echo $defUrl
+        curl -H 'Content-Type: application/json' -X POST $defUrl -d "{'text': '$1'}"
+        clear
+        exit 0
+    fi
+    if [[ $# -gt 1 ]]; then
+        roomUrl=""
+        while IFS=, read -r rnick rurl rdef
+        do
+            if [[ "$rnick" == "$room" ]] ; then
+                roomUrl=$rurl
+            fi
+        done < $FILE
+        echo $roomUrl
+        curl -H 'Content-Type: application/json' -X POST $roomUrl -d "{'text': '$2'}"
+        clear
+        exit 0
+    fi
+fi
+# Setting up new webhook
+clear
+#Start screen options
+if [ $start -gt 0 ] ; then
+# Start screen option 1
+    if [ $start -eq 1 ] ; then
+        echo "Set up incoming webhook in Google Chat chatroom. Copy incoming webhook url and paste it here."
+        echo ""
+        read -p "URL: " url
+        clear
+        echo "Now give nickname to webhook you set up."
+        echo ""
+        read -p "Nickname: " nick
+        clear
+        echo "Done!"
+        echo "Your webhook is now set up."
+        echo "Do you want to use this webhook as default? (upcoming feature)"
+        echo ""
+        read -p "y/[n]" default
+        [ -z "${default}" ] && default='n'
+        clear
+        echo "$nick, $url, $default" >> $FILE
+    fi
+    if [ $start -eq 2 ] ; then
+        clear
+        echo "Chatroom list:"
+        line=0
+        while IFS=, read -r rnick rurl rdef
+        do
+            echo "$line:  $rnick  default: $rdef"
+            line=$line+1
+        done < $FILE
+        echo ""
+        echo "You can edit room list by editing file $FILE"
+    fi
+    if [ $start -eq 3 ] ; then
+        clear
+        echo "Set up rooms by running gmessage in terminal without parameters."
+        echo ""
+        echo "Sending messages:"
+        echo ""
+        echo "Run gmessage. First parameter is room nickname,"
+        echo "the second parameter is the message surrounded by single quotes."
+        echo ""
+        echo "Example:"
+        echo "gmessage myChatRoom 'Hello world!'"
+        echo " "
+    fi
+fi
+exit 1

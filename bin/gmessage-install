@@ -1,0 +1,7 @@
+FILE=/usr/local/bin/gmessage.sh
+if test -f "$FILE"; then
+    echo "Removing old version of gmessage..."
+    rm $FILE
+fi
+echo "Installing gmessage..."
+cp gmessage /usr/local/bin/gmessage
